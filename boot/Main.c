@@ -21,7 +21,7 @@ void main(void)
 
     Printf_test();
 
-    i = 100;
+    i = 2;
     while(i--)
     {
         uint8_t ch = Hal_uart_get_char();
