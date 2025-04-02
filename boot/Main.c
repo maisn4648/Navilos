@@ -1,15 +1,25 @@
-#include "stdint.h"
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "HalUart.h"
 #include "HalInterrupt.h"
 #include "HalTimer.h"
 
-#include "stdbool.h"
+#include "task.h"
+
 #include "stdio.h"
 #include "stdlib.h"
 
 static void Hw_init(void);
+static void Kernel_init(void);
+
 static void Printf_test(void);
 static void Timer_test(void);
+
+void User_task0(void);
+void User_task1(void);
+void User_task2(void);
+
 
 void main(void)
 {
@@ -26,7 +36,9 @@ void main(void)
 
     Printf_test();
 
-    Timer_test();
+    User_task0();
+    User_task1();
+    User_task2();
 }
 
 static void Hw_init(void)
@@ -34,6 +46,7 @@ static void Hw_init(void)
     Hal_interrupt_init();
     Hal_timer_init();
     Hal_uart_init();
+    Kernel_init();
 }
 
 
@@ -59,4 +72,42 @@ static void Timer_test(void)
 		debug_printf("currunt count : %u \n",Hal_timer_get_1ms_counter());
 		delay(1000);	
 	}
+}
+
+static void Kernel_init(void)
+{
+	uint32_t taskId;
+
+	Kernel_task_init();
+
+	taskId = Kernel_task_create(User_task0);
+	if(NOT_ENOUGH_TASK_NUM==taskId)
+	{
+		putstr("Task0 creation fail\n");
+	}
+
+	taskId = Kernel_task_create(User_task1);
+	if(NOT_ENOUGH_TASK_NUM==taskId)
+	{
+		putstr("Task1 creation fail\n");
+	}
+
+	taskId = Kernel_task_create(User_task2);
+	if(NOT_ENOUGH_TASK_NUM==taskId)
+	{
+		putstr("Task2 creation fail\n");
+	}
+}
+
+void User_task0(void)
+{
+	debug_printf("User Task#0\n");
+}
+void User_task1(void)
+{
+	debug_printf("User Task#1\n");
+}
+void User_task2(void)
+{
+	debug_printf("User Task#2\n");
 }
