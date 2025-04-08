@@ -3,7 +3,6 @@
 
 #include "ARMv7AR.h"
 #include "task.h"
-#include "armcpu.h"
 
 //task
 static KernelTcb_t sTask_list[MAX_TASK_NUM];
@@ -52,7 +51,6 @@ uint32_t Kernel_task_create(KernelTaskFunc_t startFunc)
 	ctx->pc=(uint32_t)startFunc;
 
 	return (sAllocated_tcb_index-1);
-
 }
 
 static KernelTcb_t* Scheduler_round_robin_algorithm(void)
@@ -69,7 +67,7 @@ void Kernel_task_start(void)
 	Restore_context();
 }
 
-void Kernel_task_context_switching(void)
+__attribute__ ((naked)) void Kernel_task_context_switching(void)
 {
 	__asm__ ("B Save_context");
 	__asm__ ("B Restore_context");
@@ -80,9 +78,7 @@ void Kernel_task_scheduler(void)
 	sCurrent_tcb = &sTask_list[sCurrent_tcb_index];
 	sNext_tcb = Scheduler_round_robin_algorithm();
 	
-	disable_irq();
 	Kernel_task_context_switching();
-	enable_irq();
 }
 
 static __attribute__ ((naked)) void Save_context(void)

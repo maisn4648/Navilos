@@ -1,14 +1,14 @@
-#include <stdint.h>
-#include <stdbool.h>
+#include "stdint.h"
+#include "stdbool.h"
 
 #include "HalUart.h"
 #include "HalInterrupt.h"
 #include "HalTimer.h"
 
-#include "Kernel.h"
-
 #include "stdio.h"
 #include "stdlib.h"
+
+#include "Kernel.h"
 
 static void Hw_init(void);
 static void Kernel_init(void);
@@ -35,7 +35,6 @@ void main(void)
     putstr("Hello World!\n");
 
     Printf_test();
-    Timer_test();
 
     Kernel_init();
 
@@ -45,8 +44,8 @@ void main(void)
 static void Hw_init(void)
 {
     Hal_interrupt_init();
-    Hal_timer_init();
     Hal_uart_init();
+    Hal_timer_init();
 }
 
 
@@ -104,9 +103,19 @@ void User_task0(void)
 {
 	int local =0;
 	debug_printf("User Task #0 SP =0x%x \n",&local);
-
+	
 	while(true)
 	{
+		KernelEventFlag_t handle_event = Kernel_wait_events(KernelEventFlag_UartIn);
+
+		switch(handle_event)
+		{
+			case KernelEventFlag_UartIn:
+				debug_printf("\nEvent handled\n");
+			break;
+		}
+	
+	debug_printf("User Task #0 SP =0x%x \n",&local);
 		Kernel_yield();
 	}
 }
@@ -117,6 +126,7 @@ void User_task1(void)
 
 	while(true)
 	{
+		debug_printf("User Task #1 SP =0x%x \n",&local);
 		Kernel_yield();
 	}
 }
@@ -127,6 +137,7 @@ void User_task2(void)
 
 	while(true)
 	{
+		debug_printf("User Task #2 SP =0x%x \n",&local);
 		Kernel_yield();
 	}
 }
