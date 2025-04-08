@@ -5,7 +5,7 @@
 #include "HalInterrupt.h"
 #include "HalTimer.h"
 
-#include "task.h"
+#include "Kernel.h"
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -35,10 +35,11 @@ void main(void)
     putstr("Hello World!\n");
 
     Printf_test();
+    Timer_test();
 
-    User_task0();
-    User_task1();
-    User_task2();
+    Kernel_init();
+
+    while(true);
 }
 
 static void Hw_init(void)
@@ -46,7 +47,6 @@ static void Hw_init(void)
     Hal_interrupt_init();
     Hal_timer_init();
     Hal_uart_init();
-    Kernel_init();
 }
 
 
@@ -67,11 +67,11 @@ static void Printf_test(void)
 
 static void Timer_test(void)
 {
-	while(true)
+	for(int i=0;i<5;i++)
 	{
 		debug_printf("currunt count : %u \n",Hal_timer_get_1ms_counter());
 		delay(1000);	
-	}
+	}	
 }
 
 static void Kernel_init(void)
@@ -97,17 +97,36 @@ static void Kernel_init(void)
 	{
 		putstr("Task2 creation fail\n");
 	}
+	Kernel_start();
 }
 
 void User_task0(void)
 {
-	debug_printf("User Task#0\n");
+	int local =0;
+	debug_printf("User Task #0 SP =0x%x \n",&local);
+
+	while(true)
+	{
+		Kernel_yield();
+	}
 }
 void User_task1(void)
 {
-	debug_printf("User Task#1\n");
+	int local =0;
+	debug_printf("User Task #1 SP =0x%x \n",&local);
+
+	while(true)
+	{
+		Kernel_yield();
+	}
 }
 void User_task2(void)
 {
-	debug_printf("User Task#2\n");
+	int local =0;
+	debug_printf("User Task #2 SP =0x%x \n",&local);
+
+	while(true)
+	{
+		Kernel_yield();
+	}
 }
